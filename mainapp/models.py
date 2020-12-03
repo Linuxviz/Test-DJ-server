@@ -106,10 +106,29 @@ class Customers(models.Model):
     def __str__(self):
         return f"Покупатель: {self.user.first_name} {self.user.last_name}"
 
-# class Specifications(models.Model):  # Характеристики
-#     content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
-#     object_id = models.PositiveIntegerField()
-#     name = models.CharField(max_length=255, verbose_name="Имя товара для характеристик")
-#
-#     def __str__(self):
-#         return f"Характеристики для товара: {self.name}"
+
+class LatestProductsManager:
+    # Выбираем пять моделей для отображения на главной странице
+    @staticmethod
+    def get_products_for_main_page(self, *args, **kwargs):
+        with_respect_to = kwargs.get('with_respect_to')
+        products = []
+        ct_models = ContentType.objects.filter(model__in=args)
+        for ct_model in ct_models:
+            model_products = ct_model.model_class()._base_manager.all().order_by('-id')[:5]
+            products.extend(model_products)
+        if with_respect_to:
+            ct_model = ContentType.objects.filter(model=with_respect_to)  # ContentType все таблицы базы данных,
+            # objects - объекты, filter - фильтр по... model - конкретной модели
+            if ct_model.exist():
+                if with_respect_to in args:
+                    return sorted(products,
+                                  key=(lambda x: x.__class__._meta.model_name.startswith(with_respect_to)),
+                                  reverse=True
+                                  )
+
+        return products
+
+
+class LatestProducts:
+    object = LatestProductsManager()
