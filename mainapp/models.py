@@ -2,8 +2,21 @@ from django.db import models
 from django.contrib.auth import get_user_model
 from django.contrib.contenttypes.models import ContentType
 from django.contrib.contenttypes.fields import GenericForeignKey
+from PIL import Image
 
 User = get_user_model()  # говорим джанго что хотим использовать своего пользователся(покупателя)
+
+
+class MinResolutionErrorException(Exception):
+    pass
+
+
+class MaxResolutionErrorException(Exception):
+    pass
+
+
+class MaxSizeErrorException(Exception):
+    pass
 
 
 # В данном файле каждого приложения веб сервара создаются модели хранимых данных в ООП стиле,
@@ -29,6 +42,10 @@ class Category(models.Model):
 
 # -------------------------------------------------------------------------------------------------------------------- #
 class Product(models.Model):
+    MAX_RESOLUTION = (2000, 2000)
+    MIN_RESOLUTION = (400, 400)
+    MAX_SIZE = 3145728
+
     class Meta:
         abstract = True
 
@@ -41,6 +58,31 @@ class Product(models.Model):
 
     def __str__(self):
         return self.title
+
+    def save(self, *args, **kwargs):
+        img = Image.open(self.image)
+        self.__img_size_check(img)
+        super().save(*args, **kwargs)
+
+    def __is_img_smaller_than_min(self, img):
+        if img.width < self.MIN_RESOLUTION[0] or img.height < self.MIN_RESOLUTION[1]:
+            return True
+
+    def __is_img_bigger_than_max(self, img):
+        if img.width > self.MAX_RESOLUTION[0] or img.height > self.MAX_RESOLUTION[1]:
+            return True
+
+    def __is_img_size_bigger_than_max(self, image):
+        if image.size > self.MAX_SIZE:
+            return True
+
+    def __img_size_check(self, img):
+        if self.__is_img_smaller_than_min(img):
+            raise MinResolutionErrorException("Разрешение изображения меньше минимального")
+        if self.__is_img_bigger_than_max(img):
+            raise MaxResolutionErrorException("Разрешение изображения больше максимального")
+        if self.__is_img_size_bigger_than_max(self.image):
+            raise MaxSizeErrorException("Размер изображения больше максимального")
 
 
 class Laptop(Product):
