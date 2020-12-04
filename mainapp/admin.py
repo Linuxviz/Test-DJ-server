@@ -5,6 +5,10 @@ from .models import *
 from PIL import Image
 
 
+
+
+
+
 class LaptopAdminForm(ModelForm):
 
     def __init__(self, *args, **kwargs):
@@ -19,6 +23,7 @@ class LaptopAdminForm(ModelForm):
                                                    f'x{self.MAX_RESOLUTION[1]}; \n'
                                                    f'Размер изображения не должен превышать '
                                                    f'{self.MAX_SIZE / (1024 * 1024)} Мб</span>')
+
     #                                            перевод байтов в мегабайты ^
 
     def clean_image(self):
