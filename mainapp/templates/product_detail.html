@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-
+{% load specifications %}
 {% block content %}
     <nav aria-label="breadcrumb">
         <ol class="breadcrumb">
@@ -9,14 +9,23 @@
         </ol>
     </nav>
 <div class="row">
-    <div class="col-md-6">
+    <div class="col-md-4">
         <img src="{{ product.image.url }}" class="img-fluid">
     </div>
     <div class="col-md-14">
         <h3>{{ product.title }}</h3>
         <p>Цена: {{ product.price }} руб.</p>
         <p>Описание: {{ product.description }}</p>
-        <p>Характеристики:</p>
     </div>
+    <p class="col-md-8">Характеристики:</p>
+
+    {# Тут точно такая же таблица но только на фильтре:   {{   product|product_spec }}#}
+
+    {% if product.category.slug == 'smartphones' %}
+        {% include 'smartphone_specification.html'%}
+    {% else %}
+        {% include 'laptop_specification.html'%}
+    {% endif %}
+
 </div>
 {% endblock %}

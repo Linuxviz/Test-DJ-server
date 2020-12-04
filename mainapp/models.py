@@ -100,7 +100,7 @@ class Laptop(Product):
     time_without_charge = models.CharField(max_length=255, verbose_name="Время работы без подзарядки")
 
     def __str__(self):
-        return f'{self.category.name}:{self.title}'
+        return f'{self.category.name} : {self.title}'
 
     def get_absolute_url(self):
         return get_product_url(self, 'product_detail')
@@ -118,7 +118,7 @@ class Smartphone(Product):
     frontal_cam = models.CharField(max_length=255, verbose_name="Фронтальная")
 
     def __str__(self):
-        return f'{self.category.name}:{self.title}'
+        return f'{self.category.name} : {self.title}'
 
     def get_absolute_url(self):
         return get_product_url(self, 'product_detail')
@@ -147,6 +147,7 @@ class Cart(models.Model):
     products = models.ManyToManyField(CartProduct, blank=True, related_name="related_card")
     total_products = models.PositiveIntegerField(default=0)
     final_price = models.DecimalField(max_digits=9, decimal_places=2, verbose_name="Общая цена")
+    in_order = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Корзина покупателя {str(self.owner)}, с продуктами {str(self.products)}, по цене {self.final_price}"
